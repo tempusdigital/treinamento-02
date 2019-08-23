@@ -41,7 +41,7 @@ namespace EntityFramework.Controllers
                     query = query.OrderBy(p => p.CpfOuCnpj);
                     break;
             }
-
+            
             var resultado = await query
                 .Select(p => new
                 {
@@ -58,6 +58,37 @@ namespace EntityFramework.Controllers
             var resultado = await _lojaContext
                 .Set<Cliente>()
                 .Where(c => c.Telefones.Any() == false)
+                .ToArrayAsync();
+
+            return Json(resultado);
+        }
+
+        public async Task<IActionResult> TestarSqlCustomizado()
+        {
+            var resultado = await _lojaContext
+                .Set<Cliente>()
+                .FromSql("SELECT * FROM \"Cliente\" WHERE 1 = @1", 1)
+                .Where(p => p.Nome != null)
+                .Select(p => new
+                {
+                    p.Nome
+                })
+                .ToArrayAsync();
+
+            return Json(resultado);
+        }
+
+        public async Task<IActionResult> Agrupar()
+        {
+            var resultado = await _lojaContext
+                .Set<Cliente>()
+                .GroupBy(p => p.Tipo)
+                .Select(p => new
+                {
+                    Tipo = p.Key,
+                    Quantidade = p.Count(),
+                    Score = p.Average(a => a.Score)
+                })
                 .ToArrayAsync();
 
             return Json(resultado);

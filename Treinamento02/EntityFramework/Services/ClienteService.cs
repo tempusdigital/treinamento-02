@@ -1,11 +1,66 @@
 ﻿using EntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace EntityFramework.Services
 {
+    /* 
+     * Como salvar a nota e obrer número de nota fiscal:
+       
+    using (var tx = await _lojaContext.Database.BeginTransactionAsync(isolationLevel: ))
+    {
+        var numeroNota = await ObterProximoNumero();
+        nota.Numero = numeroNota;
+
+        _lojaContext.Add(nota);
+        _lojaContext.Add(itensDaNota);
+
+        await _lojaContext.SaveChangesAsync();
+
+        tx.Commit();
+    }
+     */
+
+
+    /*
+* Errado
+* 
+var clientes = await _lojaContext
+.Set<Cliente>()
+.ToArrayAsync();
+
+foreach (var cliente in clientes)
+{
+var clientes = await _lojaContext
+    .Set<NotaFiscal>()
+    .Where(n => n.ClienteId == cliente.Id)
+    .ToArrayAsync();
+}
+*/
+
+    /**
+     * Correto
+     * 
+    var clientes = await _lojaContext
+        .Set<Cliente>()
+        .ToArrayAsync();
+
+    var clienteIds = clientes.Select(p => p.Id).ToArray();
+
+    var notasDeTodosClientes = await _lojaContext
+        .Set<NotaFiscal>()
+        .Where(p => clienteIds.Contains(p.Id))
+        .ToArrayAsync();
+
+    foreach (var cliente in clientes)
+    {
+        var notasDoCliente = notasDeTodosClientes.Where(p => p.ClienteId == cliente.Id).ToArray();
+    }
+    */
+    
     public class ClienteListarDto
     {
         public int Id { get; set; }
@@ -39,6 +94,7 @@ namespace EntityFramework.Services
         {
             var query = _lojaContext
                 .Set<Cliente>()
+                .AsNoTracking()
                 .AsQueryable();
 
             if (pesquisa.Nome != null && pesquisa.CpfOuCnpj != null)
@@ -71,12 +127,12 @@ namespace EntityFramework.Services
 
             return resultado;
         }
-
+        
         public async Task<int> Inserir(ClienteDto clienteDto)
         {
-            if (string.IsNullOrWhiteSpace(clienteDto.Nome))
+            if (string.IsNullOrWhiteSpace( clienteDto.Nome))
                 throw new ValidationException("Nome", "Preencha o nome");
-
+            
             //cliente.Id = GerarProximoId();
             var cliente = new Cliente();
 
@@ -102,12 +158,12 @@ namespace EntityFramework.Services
 
             return cliente.Id;
         }
-
+        
         public async Task Editar(ClienteDto clienteDto)
         {
             if (clienteDto.Nome == null)
                 throw new ValidationException("Nome", "Preencha o nome");
-
+            
             var cliente = await _lojaContext
                 .Set<Cliente>()
                 .Where(p => p.Id == clienteDto.Id)
@@ -122,7 +178,7 @@ namespace EntityFramework.Services
 
             await _lojaContext.SaveChangesAsync();
         }
-
+        
         public async Task Excluir(int id)
         {
             var cliente = await _lojaContext
