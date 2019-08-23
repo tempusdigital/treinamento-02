@@ -27,7 +27,7 @@ namespace EntityFramework
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
+            
             services
                 .AddDbContext<LojaContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("LojaContext")));
@@ -49,7 +49,7 @@ namespace EntityFramework
 
             app.UseStaticFiles();
 
-            app.UseMvc();
+            app.UseMvcWithDefaultRoute();
         }
     }
 }
