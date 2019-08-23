@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EntityFramework.Models;
+using EntityFramework.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,8 @@ namespace EntityFramework
             services
                 .AddDbContext<LojaContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("LojaContext")));
+
+            services.AddTransient<IClienteService, ClienteService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
