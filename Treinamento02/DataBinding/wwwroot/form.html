@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>form</title>
+</head>
+<body>
+    <form action="/Home/TestarForm" method="post">
+        <h2>Adicionar cliente</h2>
+        <div>
+            <label>Nome</label>
+            <input name="Nome" type="text"  />
+        </div>
+        <div>
+            <label>Data de Nascimento</label>
+            <input type="date" name="DataNascimento" value=""  />
+        </div>
+        <div>
+            <label>Score de crédito</label>
+            <input type="number" name="Score" value="0" step="1.00"  />
+        </div>
+        <button type="submit">Enviar</button>
+    </form>
+</body>
+</html>
