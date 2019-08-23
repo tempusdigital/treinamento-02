@@ -25,6 +25,7 @@ namespace DataBinding
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,7 +39,7 @@ namespace DataBinding
                 loggerFactory.AddConsole();
                 loggerFactory.AddDebug();
             }
-
+            
             app.UseDefaultFiles();
 
             app.UseStaticFiles();

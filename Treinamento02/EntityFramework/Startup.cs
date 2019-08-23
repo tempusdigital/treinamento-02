@@ -39,6 +39,10 @@ namespace EntityFramework
                 loggerFactory.AddDebug();
             }
 
+            app.UseDefaultFiles();
+
+            app.UseStaticFiles();
+
             app.UseMvc();
         }
     }
