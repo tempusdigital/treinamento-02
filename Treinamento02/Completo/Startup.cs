@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
-using Completo.Infra;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -41,23 +42,46 @@ namespace Completo
             });
 
 
-            services.AddMvc(opts=>
+            services
+                .AddMvc(opts =>
                 {
+                    opts.Filters.Add(typeof(JsonApiValidationActionFilter));
                     opts.ModelBindingMessageProvider.Translate();
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddFeatureFolders()
-                .AddFluentValidation(opt =>
-                {
-                    opt.RegisterValidatorsFromAssemblyContaining<Startup>();
-                    opt.Translate();
-                });
-
+                .AddFeatureFolders();
+            /*
             services
                 .AddDbContext<LojaContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("LojaContext")));
-
+*/
             services.AddMediatR(typeof(Startup));
+
+            RegisterValidators(services);
+        }
+
+        private void RegisterValidators(IServiceCollection services)
+        {
+            var assembly = typeof(Startup).GetTypeInfo().Assembly;
+            var validatorType = typeof(IValidator);
+
+            var validators = assembly
+                .GetExportedTypes()
+                .Where(t => validatorType.IsAssignableFrom(t) && !t.IsInterface);
+
+            foreach (var validator in validators)
+            {
+                services.AddTransient(validator);
+
+                var validatorInterfaces = validator
+                    .GetInterfaces()
+                    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IValidator<>));
+
+                foreach (var validatorInterface in validatorInterfaces)
+                {
+                    services.AddTransient(validatorInterface, validator);
+                }
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +91,9 @@ namespace Completo
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
+
+                loggerFactory.AddConsole();
+                loggerFactory.AddDebug();
             }
             else
             {
@@ -93,7 +120,7 @@ namespace Completo
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller}/{action}/{id?}");
             });
         }
     }
