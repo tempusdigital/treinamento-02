@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Completo.Features.Cliente
+namespace Completo.Features.Exemplo
 {
-    public class ClienteController : Controller
+    public class ExemploController : Controller
     {
         readonly IMediator _mediator;
 
-        public ClienteController(IMediator mediator)
+        public ExemploController(IMediator mediator)
         {
             _mediator = mediator;
         }

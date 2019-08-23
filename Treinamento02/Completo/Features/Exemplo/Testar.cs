@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Completo.Features.Cliente
+namespace Completo.Features.Exemplo
 {
     public class Testar
     {
@@ -40,6 +40,7 @@ namespace Completo.Features.Cliente
 
             public async Task<string> Handle(Query request, CancellationToken cancellationToken)
             {
+                await _validar.ValidateAndThrowAsync("");
                 return "Foi novamente";
             }
         }
