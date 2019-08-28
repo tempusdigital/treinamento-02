@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Tempus.Utils.AspNetCore;
 
 namespace EntityFramework
 {
@@ -27,7 +28,10 @@ namespace EntityFramework
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(options=>
+            {
+                options.Filters.Add<JsonApiValidationActionFilter>();
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             
             services
                 .AddDbContext<LojaContext>(options =>
@@ -35,6 +39,7 @@ namespace EntityFramework
 
             services.AddTransient<IClienteService, ClienteService>();
             services.AddTransient<IProdutoService, ProdutoService>();
+            services.AddTransient<ValidarProduto>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,7 +58,10 @@ namespace EntityFramework
 
             app.UseStaticFiles();
 
-            app.UseMvcWithDefaultRoute();
+            app.UseMvc(options =>
+            {
+                options.MapRoute("default", "{tenant}/{controller}/{action}");
+            });
         }
     }
 }

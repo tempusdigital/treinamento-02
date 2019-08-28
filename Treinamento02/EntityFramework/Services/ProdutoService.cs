@@ -4,25 +4,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
+using Tempus.Utils;
 
 namespace EntityFramework.Services
 {
     public class ProdutoService : IProdutoService
     {
         readonly LojaContext _lojaContext;
+        readonly ValidarProduto _validarProduto;
 
-        public ProdutoService(LojaContext lojaContext)
+        public ProdutoService(LojaContext lojaContext, ValidarProduto validarProduto)
         {
             _lojaContext = lojaContext;
+            _validarProduto = validarProduto;
         }
 
         public async Task<int> InserirEditar(ProdutoInserirEditarDto produtoDto)
         {
-            if (string.IsNullOrWhiteSpace(produtoDto.Descricao))
-                throw new ValidationException("descricao", "Informe a descrição");
-
-            if (produtoDto.Valor <= 0)
-                throw new ValidationException("Valor", "Valor deve ser maior que zero");
+            await _validarProduto.ValidateAndThrowAsync(produtoDto);
 
             Produto produto = null;
 
@@ -38,6 +38,8 @@ namespace EntityFramework.Services
                     .Set<Produto>()
                     .Where(p => p.Id == produtoDto.Id)
                     .FirstOrDefaultAsync();
+
+                ChecarSe.Encontrou(produto);
             }
             
             produto.Descricao = produtoDto.Descricao;
@@ -74,6 +76,8 @@ namespace EntityFramework.Services
                 .Set<Produto>()
                 .Where(p => p.Id == id)
                 .FirstOrDefaultAsync();
+
+            ChecarSe.Encontrou(produto);
 
             _lojaContext.Remove(produto);
 
