@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace EntityFramework.Controllers
 {
-    public class ClienteOldController : Controller
+    public class ExemploController : Controller
     {
         readonly LojaContext _lojaContext;
 
-        public ClienteOldController(LojaContext lojaContext)
+        public ExemploController(LojaContext lojaContext)
         {
             _lojaContext = lojaContext;
         }
@@ -41,7 +41,7 @@ namespace EntityFramework.Controllers
                     query = query.OrderBy(p => p.CpfOuCnpj);
                     break;
             }
-            
+
             var resultado = await query
                 .Select(p => new
                 {
@@ -158,7 +158,7 @@ namespace EntityFramework.Controllers
 
             var cliente = await _lojaContext
                 .Set<Cliente>()
-                .Where( p=> p.Id == clienteDto.Id)
+                .Where(p => p.Id == clienteDto.Id)
                 .FirstOrDefaultAsync();
 
             if (cliente == null)
@@ -189,6 +189,37 @@ namespace EntityFramework.Controllers
             await _lojaContext.SaveChangesAsync();
 
             return Ok("Removido!");
+        }
+
+        [ResponseCache(NoStore = true)]
+        public async Task<IActionResult> ObterProximoNumero()
+        {
+            using (var tx = await _lojaContext.Database.BeginTransactionAsync())
+            {
+                var proximoNumero = await _lojaContext
+                    .Set<Numeracao>()
+                    .FromSql("UPDATE public.Numeracao SET UltimoNumero = UltimoNumero + 1 RETURNING Id, UltimoNumero ")
+                    .AsNoTracking()
+                    .Select(p => p.UltimoNumero)
+                    .FirstAsync();
+
+                // salva aqui a nota fiscal ou pedido de vendas com _lojaContext.SaveChangeAsync()
+
+                tx.Commit();
+
+                return Json(proximoNumero);
+            }
+        }
+
+        [ResponseCache(NoStore = true)]
+        public async Task<IActionResult> TestarView()
+        {
+            var resultado = await _lojaContext
+                .Query<ClienteComTelefoneQuery>()
+                .AsNoTracking()
+                .ToArrayAsync();
+
+            return Json(resultado);
         }
     }
 }

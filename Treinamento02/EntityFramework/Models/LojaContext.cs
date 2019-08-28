@@ -18,15 +18,6 @@ namespace EntityFramework.Models
         public virtual DbSet<Cliente> Cliente { get; set; }
         public virtual DbSet<ClienteTelefone> Clientetelefone { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseNpgsql("Host=localhost;Database=TreinamentoCompleto2;Username=postgres;Password=postgres");
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Cliente>(entity =>
@@ -61,6 +52,14 @@ namespace EntityFramework.Models
                     .HasForeignKey(d => d.ClienteId)
                     .HasConstraintName("fk_clientetelefone_cliente");
             });
+
+            modelBuilder.Entity<Numeracao>(entity =>
+            {
+                entity.Property(p => p.UltimoNumero).ValueGeneratedOnAddOrUpdate();
+            });
+
+
+            modelBuilder.Query<ClienteComTelefoneQuery>().ToView("clientecomtelefone");
         }
     }
 }
