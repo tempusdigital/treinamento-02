@@ -58,7 +58,8 @@ namespace EntityFramework.Models
                 entity.Property(p => p.UltimoNumero).ValueGeneratedOnAddOrUpdate();
             });
 
-
+            modelBuilder.Entity<Produto>();
+            
             modelBuilder.Query<ClienteComTelefoneQuery>().ToView("clientecomtelefone");
         }
     }

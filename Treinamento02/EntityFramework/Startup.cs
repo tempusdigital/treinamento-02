@@ -34,6 +34,7 @@ namespace EntityFramework
                     options.UseNpgsql(Configuration.GetConnectionString("LojaContext")));
 
             services.AddTransient<IClienteService, ClienteService>();
+            services.AddTransient<IProdutoService, ProdutoService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

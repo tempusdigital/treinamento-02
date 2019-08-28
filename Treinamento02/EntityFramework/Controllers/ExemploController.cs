@@ -190,6 +190,21 @@ namespace EntityFramework.Controllers
 
             return Ok("Removido!");
         }
+        /*
+        public async Task<IActionResult> GravarNotaFiscal()
+        {
+            using (var tx = await _lojaContext.Database.BeginTransactionAsync(isolationLevel: ...))
+            {
+                _servicoDeEstoque.AtualizarEstoque();
+
+                var numero = _servicoDeNota.ObterNumero();
+
+                Salvar(numero, notaFiscal);
+
+                tx.Commit();
+            }
+        }
+        */
 
         [ResponseCache(NoStore = true)]
         public async Task<IActionResult> ObterProximoNumero()
@@ -207,7 +222,7 @@ namespace EntityFramework.Controllers
 
                 tx.Commit();
 
-                return Json(proximoNumero);
+                return Json(proximoNumero);                
             }
         }
 
@@ -217,9 +232,91 @@ namespace EntityFramework.Controllers
             var resultado = await _lojaContext
                 .Query<ClienteComTelefoneQuery>()
                 .AsNoTracking()
+                .Where(p => p.Id > 1)
                 .ToArrayAsync();
 
             return Json(resultado);
+        }
+
+        public class ProdutoPesquisa
+        {
+            public string Descricao { get; set; }
+
+            public ProdutoPequisaOrdenacaoEnum Ordenacao { get; set; }
+        }
+
+        public enum ProdutoPequisaOrdenacaoEnum
+        {
+            Descricao,
+            Valor
+        }
+
+        public async Task<IActionResult> ProdutoSimples(ProdutoPesquisa pesquisa)
+        {
+            IQueryable<Produto> query = CriarQuery(pesquisa);
+
+            var resultado = await query
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Descricao,
+                })
+                .ToArrayAsync();
+
+            return Json(resultado);
+        }
+
+        public async Task<IActionResult> ProdutoCompleto(ProdutoPesquisa pesquisa)
+        {
+            IQueryable<Produto> query = CriarQuery(pesquisa);
+
+            var resultado = await query
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Descricao,
+                    p.QuantidadeNoEstoque,
+                    p.Valor
+                })
+                .ToArrayAsync();
+
+            return Json(resultado);
+        }
+
+        private IQueryable<Produto> CriarQuery(ProdutoPesquisa pesquisa)
+        {
+            var query = _lojaContext
+                .Set<Produto>()
+                .AsNoTracking()
+                .AsQueryable();
+
+            query = Filtrar(pesquisa, query);
+
+            query = Ordenar(pesquisa, query);
+
+            return query;
+        }
+
+        private static IQueryable<Produto> Ordenar(ProdutoPesquisa pesquisa, IQueryable<Produto> query)
+        {
+            switch (pesquisa.Ordenacao)
+            {
+                case ProdutoPequisaOrdenacaoEnum.Descricao:
+                    query = query.OrderBy(p => p.Descricao);
+                    break;
+                case ProdutoPequisaOrdenacaoEnum.Valor:
+                    query = query.OrderBy(p => p.Valor);
+                    break;
+            }
+
+            return query;
+        }
+
+        private static IQueryable<Produto> Filtrar(ProdutoPesquisa pesquisa, IQueryable<Produto> query)
+        {
+            if (string.IsNullOrWhiteSpace(pesquisa.Descricao) == false)
+                query = query.Where(p => p.Descricao.StartsWith(pesquisa.Descricao));
+            return query;
         }
     }
 }
