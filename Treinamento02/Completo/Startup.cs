@@ -34,15 +34,7 @@ namespace Completo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLocalization();
-
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
-
+            
             services
                 .AddMvc(opts =>
                 {
@@ -114,8 +106,10 @@ namespace Completo
                 SupportedUICultures = supportedCultures
             });
 
+
+            app.UseDefaultFiles();
+
             app.UseStaticFiles();
-            app.UseCookiePolicy();
 
             app.UseMvc(routes =>
             {

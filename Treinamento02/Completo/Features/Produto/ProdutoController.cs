@@ -16,9 +16,30 @@ namespace Completo.Features.Produto
             _mediator = mediator;
         }
 
-        public async Task<IActionResult> Listar(Listar.Query query)
+        public async Task<IActionResult> Listar(Listar.Query request)
         {
-            var resultado = await _mediator.Send(query);
+            var resultado = await _mediator.Send(request);
+            return Json(resultado);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Inserir([FromBody]InserirEditar.Command request)
+        {
+            var resultado = await _mediator.Send(request);
+            return Json(resultado);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Editar([FromBody]InserirEditar.Command request)
+        {
+            var resultado = await _mediator.Send(request);
+            return Json(resultado);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Excluir(Excluir.Command request)
+        {
+            var resultado = await _mediator.Send(request);
             return Json(resultado);
         }
     }
