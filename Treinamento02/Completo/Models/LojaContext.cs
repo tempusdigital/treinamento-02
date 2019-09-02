@@ -1,27 +1,18 @@
 ﻿using System;
-using EntityFramework.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EntityFramework.Models
 {
     public partial class LojaContext : DbContext
-    {
-        readonly IConnectionStringBuilder _connectionStringBuilder;
-        
-        public LojaContext(DbContextOptions<LojaContext> options, IConnectionStringBuilder connectionStringBuilder)
+    {        
+        public LojaContext(DbContextOptions<LojaContext> options)
             : base(options)
         {
-            _connectionStringBuilder = connectionStringBuilder;
         }
 
         public virtual DbSet<Cliente> Cliente { get; set; }
         public virtual DbSet<ClienteTelefone> Clientetelefone { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseNpgsql(_connectionStringBuilder.ObterConnectionString());
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

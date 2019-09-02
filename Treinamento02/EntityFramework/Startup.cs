@@ -7,6 +7,7 @@ using EntityFramework.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,12 +35,16 @@ namespace EntityFramework
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             
             services
-                .AddDbContext<LojaContext>(options =>
-                    options.UseNpgsql(Configuration.GetConnectionString("LojaContext")));
+                .AddDbContext<LojaContext>();
 
             services.AddTransient<IClienteService, ClienteService>();
             services.AddTransient<IProdutoService, ProdutoService>();
             services.AddTransient<ValidarProduto>();
+
+            services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
+            services.AddTransient<IConnectionStringBuilder, ConnectionStringBuilder>();
+
+            services.AddMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using EntityFramework.Models;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
@@ -50,11 +51,11 @@ namespace Completo
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddFeatureFolders();
-            /*
+            
             services
                 .AddDbContext<LojaContext>(options =>
                     options.UseNpgsql(Configuration.GetConnectionString("LojaContext")));
-*/
+
             services.AddMediatR(typeof(Startup));
 
             RegisterValidators(services);

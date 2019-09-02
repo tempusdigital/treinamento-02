@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>form</title>
+    <style>
+        input, textarea, select {
+            width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <p>
+        <select id="metodo">
+            <option value="POST" selected>POST</option>
+            <option value="GET">GET</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+        </select>
+    </p>
+    <p>
+        <input type="url" id="url" placeholder="API URL" value="http://localhost:17550/" />
+    </p>
+    <p>
+        <textarea rows="10" cols="60" style="font-size: 10px; font-family: Courier New, Courier, monospace" id="json" placeholder="Cole o json aqui"></textarea>
+    </p>
+
+    <p><button id="enviar-com-erro">Enviar</button></p>
+
+    <h5>Resultado</h5>
+    <div id="resultado" style="font-size: 10px; font-family: Courier New, Courier, monospace"></div>
+
+    <script>
+        var metodo = document.getElementById('metodo');
+        var enviarButton = document.getElementById('enviar-com-erro');
+        var urlInput = document.getElementById('url');
+        var jsonTextarea = document.getElementById('json');
+        var resultado = document.getElementById('resultado');
+
+        enviarButton.addEventListener('click', async function () {
+            resultado.innerText = '';
+
+            try {
+                let method = metodo.value;
+                let rawResponse;
+
+                if (method == 'GET') {
+                    rawResponse = await fetch(urlInput.value);
+                }
+                else {
+                    rawResponse = await fetch(urlInput.value, {
+                        method: metodo.value,
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: jsonTextarea.value
+                    });
+                }
+
+                if (rawResponse && rawResponse.ok) {
+                    const content = await rawResponse.text();
+
+                    resultado.innerText = content;
+                }
+                else {
+                    resultado.innerText = `Ops, falha: ${rawResponse.status} - ${rawResponse.statusText}`;
+                }
+            }
+            catch (ex) {
+                resultado.innerText = `Ops, falha`;
+                throw ex;
+            }
+        });
+
+    </script>
+</body>
+</html>
